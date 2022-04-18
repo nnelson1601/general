@@ -17,9 +17,10 @@ class WordleHelper:
     self.present_letters = ''
     self.correct = ['', '', '', '', '']
     self.all_words = words
+    self.letter_scores = letterScores
     self.possible_words = [word for word in words]
     self.guess_words = [word for word in words]
-    self.word_scores = self.score_words(words, letterScores)
+    self.score_words()
 
   # Update the possible letter locations
   def update_letter_possibilities(self, gameBoard, word, prevGuessIndex):
@@ -113,19 +114,20 @@ class WordleHelper:
 
     return
 
-  def score_words(self, words, letterScores):
+  def score_words(self):
     scores = {}
-    for word in words:
+    for word in self.all_words:
       score = 0
       lettersUsed = ''
       for letter in word:
-        if letter in lettersUsed:
+        if letter in lettersUsed or any([letter in incorrect for incorrect in self.incorrect]):
           continue
         else:
           lettersUsed += letter
-          score += letterScores[letter]
+          score += self.letter_scores[letter]
       scores[word] = score
-    return scores
+    self.word_scores = scores
+    return
 
   def remove_word(self, word):
     if word in self.all_words:

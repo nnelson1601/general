@@ -226,7 +226,6 @@ aeons
 aequi
 aeric
 aerie
-aeron
 aesir
 aesop
 aetat

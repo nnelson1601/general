@@ -57,6 +57,7 @@ def main():
 
     i += 1
     wordleHelper.update_letter_possibilities(game_board, guess, prevGuessIndex=i-1)
+    wordleHelper.score_words()
     wordleHelper.filter_out_impossible_words()
     wordleHelper.generate_guess_words(guessIndex=i, tolerant=True)
     
