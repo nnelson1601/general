@@ -17,7 +17,8 @@ def get_last_parsed_word():
 def get_progress(words, index):
 	currentLetter = words[index][0]
 	currentLetterStartIndex = None
-	nextLetterStartIndex = None
+	nextLetterStartIndex = len(words)
+	
 	
 	for j in range(0, len(words)):
 		if currentLetterStartIndex is None and words[j][0] == currentLetter:
@@ -61,7 +62,7 @@ while i < len(words):
 	print("{:>20} {:^75} {:^20}".format(progress[3], progress[4], progress[5]))
 	print("\n\n\n\n\n" + word + "\n\n")
 	validation = input("y or empty: ")
-	if validation == "u":
+	if validation == "w":
 		i -= 1
 		continue
 	elif validation == "exit":

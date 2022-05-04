@@ -41,13 +41,13 @@ def get_letter_scores():
 
 # Get words from txt file
 def get_five_letter_words():
-  wordsFile = open("fiveLetterWords.txt", "r")
+  wordsFile = open("humanWords.txt", "r")
   fiveLetterWords = [word[0:5] for word in wordsFile]
   wordsFile.close()
   return fiveLetterWords
 
 def write_five_letter_words(words):
-	wordsFile = open("fiveLetterWords.txt", "w")
+	wordsFile = open("humanWords.txt", "w")
 	for i in range(len(words)):
 		word = words[i]
 		wordsFile.write(word)
