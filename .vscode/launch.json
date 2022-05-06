@@ -9,14 +9,21 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/wordle.py",
-            "console": "integratedTerminal", 
-        }, 
+            "console": "integratedTerminal"
+        },
         {
             "name": "Debug Filterer",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/filterer.py",
-            "console": "integratedTerminal",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Attach to Python Functions",
+            "type": "python",
+            "request": "attach",
+            "port": 9091,
+            "preLaunchTask": "func: host start"
         }
     ]
 }
