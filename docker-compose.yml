@@ -1,0 +1,11 @@
+version: "3.9.0"
+services:
+  wordle:
+    build:
+      context: .
+      args:
+        options: --reload
+    volumes:
+      - ./:/app
+    ports:
+      - "3000:80"
