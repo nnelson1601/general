@@ -10,6 +10,7 @@ import os
 import azure.functions as func
 
 from flask import Flask, Response
+# import uwsgi
 
 LOGIC_APP_URL = 'https://prod-04.centralus.logic.azure.com:443/workflows/ba702c58db334b86bbd490eed1a9c898/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1vH0g_Yi-YLkxtM9W2pykxDE29uMZHGAGnQYCSMSa7M'
 
@@ -20,7 +21,16 @@ logger.setLevel(logging.INFO)
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 # logger.info("OS name - " + os.name)
 
-@app.route("/")
+@app.route("/api/workflow/warmup")
+def warmup():
+  logging.info("The goal here is to warm up the app service so that we don't triplicate the wordle game")
+  sleep(30)
+  return Response(
+      response="App service warmed up",
+      status=200
+  )
+
+@app.route("/api/workflow/solve")
 def main():
   utc_timestamp = datetime.datetime.utcnow().replace(
         tzinfo=datetime.timezone.utc).isoformat()
