@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: Get date for tag name
       id: get_date
-      run: echo "::set-output name=date::$( date + '%m-%d-%Y' )"
+      run: echo "::set-output name=date::$( date +'%m-%d-%Y' )"
 
     - uses: actions/checkout@v2
 
