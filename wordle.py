@@ -99,7 +99,6 @@ def main():
   #                 headers={'Content-type': 'text/plain; charset=utf-8'})
 
   return Response(
-    headers={'Content-type': 'text/plain; charset=utf-8'},
-    response=results.encode('utf-8'),
+    response=results,
     status=200
   )
