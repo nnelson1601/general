@@ -88,9 +88,6 @@ def main():
   app.logger.info(results)
   # app.logger.info(results.encode('utf-8'))
 
-  # payload = {
-  #   "result": results
-  # }
 
   # app.logger.info(payload)
 
@@ -99,6 +96,7 @@ def main():
   #                 headers={'Content-type': 'text/plain; charset=utf-8'})
 
   return Response(
+    headers={'Content-type': 'text/plain; charset=utf-8'},
     response=results,
     status=200
   )
