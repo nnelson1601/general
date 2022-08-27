@@ -45,6 +45,10 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+    - name: Get date for tag name
+      id: get_date
+      run: echo "::set-output name=date::$( date +'%m-%d-%Y' )"
+      
     - name: Deploy to Azure Web App
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
