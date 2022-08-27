@@ -4,27 +4,17 @@ from WordleHelper import WordleHelper
 import requests
 
 import datetime
-import logging
 
-from flask import Flask, Response
+from flask import Response
 
 from __main__ import app
-
-@app.route("/api/wordle/warmup")
-def warmup():
-  logging.info("The goal here is to warm up the app service so that we don't triplicate the wordle game")
-  sleep(30)
-  return Response(
-      response="App service warmed up",
-      status=200
-  )
 
 @app.route("/api/wordle/solve")
 def main():
   utc_timestamp = datetime.datetime.utcnow().replace(
         tzinfo=datetime.timezone.utc).isoformat()
 
-  logging.info('Wordle script ran at %s', utc_timestamp)
+  app.logger.info('Wordle script ran at %s', utc_timestamp)
 
 
   words = get_five_letter_words()
@@ -40,28 +30,28 @@ def main():
   try:
     i = 0
     while i < 6:
-      logging.info("\n")
-      logging.info("{: >20} {: <20}".format("Guess:", str(i + 1)))
-      logging.info("{: >20} {: <20}".format("Remaining words:", len(wordleHelper.possible_words)))
-      logging.info("{: >20} {: <20}".format("Guess words left:", len(wordleHelper.guess_words)))
+      app.logger.info("\n")
+      app.logger.info("{: >20} {: <20}".format("Guess:", str(i + 1)))
+      app.logger.info("{: >20} {: <20}".format("Remaining words:", len(wordleHelper.possible_words)))
+      app.logger.info("{: >20} {: <20}".format("Guess words left:", len(wordleHelper.guess_words)))
 
       # guess = ''
       # while len(guess) == 0:
 
       bestPossibleWord = wordleHelper.possible_words[0]
-      logging.info("{: >20} {: <20}".format("Possible word:", bestPossibleWord))
+      app.logger.info("{: >20} {: <20}".format("Possible word:", bestPossibleWord))
 
       if len(wordleHelper.guess_words) > 0:
         suggestedGuess = wordleHelper.guess_words[0]
-        logging.info("{: >20} {: <20}".format("Suggestion:", suggestedGuess))
+        app.logger.info("{: >20} {: <20}".format("Suggestion:", suggestedGuess))
       else:
-        logging.info("{: >20} {: <20}".format("Suggestion:", "None remaining"))
+        app.logger.info("{: >20} {: <20}".format("Suggestion:", "None remaining"))
 
         # guess = input("{: >20} ".format('Guess a word:'))
         # if guess == "q":
         #   break
         # elif guess == "a":
-        #   logging.info(wordleHelper.possible_words)
+        #   app.logger.info(wordleHelper.possible_words)
         #   guess = ''
         
       guess = suggestedGuess
@@ -71,7 +61,7 @@ def main():
         clear_word(keyboard)
         wordleHelper.remove_word(guess)
         write_five_letter_words(wordleHelper.all_words)
-        logging.info("{: >20} {: <20}".format("Invalid guess:", "Game Over!"))
+        app.logger.info("{: >20} {: <20}".format("Invalid guess:", "Game Over!"))
         break
 
       i += 1
@@ -81,7 +71,7 @@ def main():
       wordleHelper.generate_guess_words(guessIndex=i, tolerant=True)
 
       if check_win(driver):
-        logging.info("Game Over!")
+        app.logger.info("Game Over!")
         sleep(1)
         break
 
@@ -95,14 +85,14 @@ def main():
   except:
     results = "Uh oh! I made a mistake and couldn't solve today's Wordle!<br>~Nila~"
     
-  logging.info(results)
-  # logging.info(results.encode('utf-8'))
+  app.logger.info(results)
+  # app.logger.info(results.encode('utf-8'))
 
   # payload = {
   #   "result": results
   # }
 
-  # logging.info(payload)
+  # app.logger.info(payload)
 
   # x = requests.post(LOGIC_APP_URL,
   #                 data=results.encode('utf-8'),
