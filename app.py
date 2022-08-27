@@ -23,6 +23,6 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 # logger.info("OS name - " + os.name)
 
 import wordle
-import creighton
+# import creighton
 
-if __name__ == '__main__' : app.run(host="0.0.0.0", port=3001)
+if __name__ == '__main__' : app.run(host="0.0.0.0", port=80)
