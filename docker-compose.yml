@@ -1,7 +1,7 @@
 version: "3"
 services:
   general:
-    image: 425005869/general:05102022.3
+    image: 425005869/general:08272022.1
     build:
       context: .
       args:
