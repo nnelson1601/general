@@ -34,7 +34,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: 425005869/general:${{ steps.get_date.outputs.date }}.${{ github.run_attempt }}
+        tags: 425005869/general:${{ steps.get_date.outputs.date }}.${{ github.run_number }}
         file: ./Dockerfile
 
   deploy:
@@ -52,4 +52,4 @@ jobs:
         app-name: 'app-general'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_6c39f73fa0de465cae5ec315b61f6b34 }}
-        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_a424fdf902254affa2715adc11d7c8e8 }}/general:${{ steps.get_date.outputs.date }}.${{ github.run_attempt }}'
+        images: 'index.docker.io/${{ secrets.AzureAppService_ContainerUsername_a424fdf902254affa2715adc11d7c8e8 }}/general:${{ steps.get_date.outputs.date }}.${{ github.run_number }}'
