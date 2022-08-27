@@ -14,8 +14,6 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-    - name: set env
-      run: echo "::set-env name=NOW::$(date + '%m-%d-%Y')"
 
     - uses: actions/checkout@v2
 
@@ -33,7 +31,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: 425005869/general:${{ env.NOW }}.${{ github.run_attempt }}
+        tags: 425005869/general:$(date + '%m-%d-%Y').${{ github.run_attempt }}
         file: ./Dockerfile
 
   deploy:
