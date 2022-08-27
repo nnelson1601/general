@@ -31,7 +31,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: 425005869/general:$(date + '%m-%d-%Y').${{ github.run_attempt }}
+        tags: 425005869/general:${{ date + '%m-%d-%Y' }}.${{ github.run_attempt }}
         file: ./Dockerfile
 
   deploy:
