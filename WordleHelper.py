@@ -28,7 +28,7 @@ class WordleHelper:
     for i in range(len(word)):
       letter = word[i]
       letterElem = gameBoard[prevGuessIndex][i]
-      letterState = letterElem.get_attribute('evaluation')
+      letterState = letterElem.get_attribute('data-state')
 
       if (letterState == CORRECT):
         self.correct[i] = letter
@@ -42,7 +42,8 @@ class WordleHelper:
       elif (letterState == ABSENT):
         self.result_text += "⬛"
         if letter in self.present_letters:
-          self.incorrect[i] += letter if letter not in self.incorrect[j] and self.correct[j] != letter else ''
+          for j in range(len(word)):
+            self.incorrect[i] += letter if letter not in self.incorrect[j] and self.correct[j] != letter else ''
         else:
           for j in range(len(word)):
             self.incorrect[j] += letter if letter not in self.incorrect[j] and self.correct[j] != letter else ''

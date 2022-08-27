@@ -1,3 +1,4 @@
+from warnings import catch_warnings
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -92,33 +93,19 @@ def set_game(driver):
   driver.get(WORDLE_URL)
   assert "Wordle".lower() in driver.title.lower()
 
-  def expand_shadow_element(element):
-    shadow_root = driver.execute_script(
-        'return arguments[0].shadowRoot', element)
-    return shadow_root
-
-  shadow_root_game_app = driver.find_element(By.TAG_NAME, "game-app").shadow_root
-  regular_root_game = shadow_root_game_app.find_element(By.ID, "game")
-
   # Close that beginning modal
-  shadow_root_game_modal = regular_root_game.find_element(
-      By.TAG_NAME, "game-modal").shadow_root
-  close_elem = shadow_root_game_modal.find_element(By.CLASS_NAME, "close-icon")
+  close_elem = driver.find_element(By.CSS_SELECTOR, "div[class^=Modal-module_closeIcon]")
   close_elem.click()
 
-  shadow_root_game_keyboard = expand_shadow_element(
-      regular_root_game.find_element(By.TAG_NAME, "game-keyboard"))
+  game_keyboard = driver.find_element(By.CSS_SELECTOR, "div[class^=Keyboard-module_keyboard")
 
   game_board = []
   for i in range(6):
-      shadow_root_game_row = regular_root_game.find_elements(
-          By.TAG_NAME, "game-row")[i].shadow_root
-      regular_root_row = shadow_root_game_row.find_element(
-          By.CLASS_NAME, "row")
-      game_tiles = regular_root_row.find_elements(By.TAG_NAME, "game-tile")
+      game_row = driver.find_elements(By.CSS_SELECTOR, "div[class^=Row-module_row]")[i]
+      game_tiles = game_row.find_elements(By.CSS_SELECTOR, "div[class^=Tile-module_tile]")
       game_board.append(game_tiles)
 
-  return shadow_root_game_keyboard, game_board
+  return game_keyboard, game_board
 
 # Click a letter
 def clickLetter(letter, keyboard):
@@ -137,46 +124,20 @@ def clear_word(keyboard):
   for i in range(5):
     clickLetter("←", keyboard)
 
-# Check for win
+# Return true for game over
 def check_win(driver):
-  gameOver = False
-
-  shadow_root_game_app = driver.find_element(By.TAG_NAME, "game-app").shadow_root
-  regular_root_game = shadow_root_game_app.find_element(By.ID, "game")
-
-  # Close that beginning modal
-  shadow_root_game_modal_host = regular_root_game.find_element(By.TAG_NAME, "game-modal")
-
-  if shadow_root_game_modal_host.get_attribute("open"):
-    gameOver = True
-
-    # # Close end modal
-    # shadow_root_game_stats = expand_shadow_element(shadow_root_game_app.find_element(By.TAG_NAME, "game-stats"))
-    # share_button_elem = shadow_root_game_stats.find_element(By.ID, "share-button")
-    # share_button_elem.click()
-
-    # sleep(.3)
-    # driver.get_screenshot_as_file("copied.png")
-
-    # driver.get(TEXT_AREA_URL)
-
-    # frame = driver.find_element_by_id('iframeResult')
-    # driver.switch_to.frame(frame)
-
-    # item = driver.find_element_by_id('w3review')
-    # item.clear()
-    # item.send_keys(Keys.LEFT_CONTROL, "v")
-
-    # result = item.get_attribute('text')
-    # print(result)
-
-  return gameOver
+  try:
+    driver.find_element(By.CSS_SELECTOR, "div[class^='Stats-module_gameStats'")
+    return True
+  except:
+    return False
+  
 
 # Check that guessed word was actually a word
 def validate_guess(gameBoard, guessIndex):
     letterElem = gameBoard[guessIndex][0]
-    letterState = letterElem.get_attribute('evaluation')
-    if letterState is None:
+    letterState = letterElem.get_attribute('data-state')
+    if letterState == "empty":
         return False
     else:
         return True

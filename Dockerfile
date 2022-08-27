@@ -55,4 +55,4 @@ RUN cd /app && \
 WORKDIR /app
 
 # 5. Start Flask app
-ENTRYPOINT python /app/wordle.py
+ENTRYPOINT python /app/app.py

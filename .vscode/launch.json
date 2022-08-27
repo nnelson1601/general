@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug Wordle",
+            "name": "Debug app",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/wordle.py",
+            "program": "${workspaceFolder}/app.py",
             "console": "integratedTerminal"
         },
         {

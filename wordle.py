@@ -5,23 +5,12 @@ import requests
 
 import datetime
 import logging
-import sys
-import os
-import azure.functions as func
 
 from flask import Flask, Response
-# import uwsgi
 
-LOGIC_APP_URL = 'https://prod-04.centralus.logic.azure.com:443/workflows/ba702c58db334b86bbd490eed1a9c898/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=1vH0g_Yi-YLkxtM9W2pykxDE29uMZHGAGnQYCSMSa7M'
+from __main__ import app
 
-app = Flask("wordle")
-
-logger = logging.getLogger("")
-logger.setLevel(logging.INFO)
-logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
-# logger.info("OS name - " + os.name)
-
-@app.route("/api/workflow/warmup")
+@app.route("/api/wordle/warmup")
 def warmup():
   logging.info("The goal here is to warm up the app service so that we don't triplicate the wordle game")
   sleep(30)
@@ -30,7 +19,7 @@ def warmup():
       status=200
   )
 
-@app.route("/api/workflow/solve")
+@app.route("/api/wordle/solve")
 def main():
   utc_timestamp = datetime.datetime.utcnow().replace(
         tzinfo=datetime.timezone.utc).isoformat()
@@ -48,65 +37,64 @@ def main():
   wordleHelper.filter_out_impossible_words()
   wordleHelper.generate_guess_words(guessIndex=0, tolerant=False) 
   
-  i = 0
-  while i < 6:
-    logging.info("\n")
-    logging.info("{: >20} {: <20}".format("Guess:", str(i + 1)))
-    logging.info("{: >20} {: <20}".format("Remaining words:", len(wordleHelper.possible_words)))
-    logging.info("{: >20} {: <20}".format("Guess words left:", len(wordleHelper.guess_words)))
+  try:
+    i = 0
+    while i < 6:
+      logging.info("\n")
+      logging.info("{: >20} {: <20}".format("Guess:", str(i + 1)))
+      logging.info("{: >20} {: <20}".format("Remaining words:", len(wordleHelper.possible_words)))
+      logging.info("{: >20} {: <20}".format("Guess words left:", len(wordleHelper.guess_words)))
 
-    # guess = ''
-    # while len(guess) == 0:
+      # guess = ''
+      # while len(guess) == 0:
 
-    bestPossibleWord = wordleHelper.possible_words[0]
-    logging.info("{: >20} {: <20}".format("Possible word:", bestPossibleWord))
+      bestPossibleWord = wordleHelper.possible_words[0]
+      logging.info("{: >20} {: <20}".format("Possible word:", bestPossibleWord))
 
-    if len(wordleHelper.guess_words) > 0:
-      suggestedGuess = wordleHelper.guess_words[0]
-      logging.info("{: >20} {: <20}".format("Suggestion:", suggestedGuess))
-    else:
-      logging.info("{: >20} {: <20}".format("Suggestion:", "None remaining"))
+      if len(wordleHelper.guess_words) > 0:
+        suggestedGuess = wordleHelper.guess_words[0]
+        logging.info("{: >20} {: <20}".format("Suggestion:", suggestedGuess))
+      else:
+        logging.info("{: >20} {: <20}".format("Suggestion:", "None remaining"))
 
-      # guess = input("{: >20} ".format('Guess a word:'))
-      # if guess == "q":
-      #   break
-      # elif guess == "a":
-      #   logging.info(wordleHelper.possible_words)
-      #   guess = ''
-      
-    guess = suggestedGuess
-    guess_word(guess, keyboard)
+        # guess = input("{: >20} ".format('Guess a word:'))
+        # if guess == "q":
+        #   break
+        # elif guess == "a":
+        #   logging.info(wordleHelper.possible_words)
+        #   guess = ''
+        
+      guess = suggestedGuess
+      guess_word(guess, keyboard)
 
-    if not validate_guess(game_board, i):
-      clear_word(keyboard)
-      wordleHelper.remove_word(guess)
-      write_five_letter_words(wordleHelper.all_words)
-      logging.info("{: >20} {: <20}".format("Invalid guess:", "Game Over!"))
-      break
+      if not validate_guess(game_board, i):
+        clear_word(keyboard)
+        wordleHelper.remove_word(guess)
+        write_five_letter_words(wordleHelper.all_words)
+        logging.info("{: >20} {: <20}".format("Invalid guess:", "Game Over!"))
+        break
 
-    i += 1
-    wordleHelper.update_letter_possibilities(game_board, guess, prevGuessIndex=i-1)
-    wordleHelper.score_words()
-    wordleHelper.filter_out_impossible_words()
-    wordleHelper.generate_guess_words(guessIndex=i, tolerant=True)
+      i += 1
+      wordleHelper.update_letter_possibilities(game_board, guess, prevGuessIndex=i-1)
+      wordleHelper.score_words()
+      wordleHelper.filter_out_impossible_words()
+      wordleHelper.generate_guess_words(guessIndex=i, tolerant=True)
 
-    if check_win(driver):
-      logging.info("Game Over!")
-      sleep(1)
-      break
+      if check_win(driver):
+        logging.info("Game Over!")
+        sleep(1)
+        break
+
+    results = wordleHelper.result_text.replace("Wordle Score", f"Wordle Score {i}/6")
+    results += "<br>~Nila~"
+
+    # screenshot capture
+    driver.get_screenshot_as_file("image.png")
+    driver.close()
+
+  except:
+    results = "Uh oh! I made a mistake and couldn't solve today's Wordle!<br>~Nila~"
     
-
-
-  # root = tk.Tk()
-  # results = root.clipboard_get()
-  # logging.info(results)
-
-  # screenshot capture
-  driver.get_screenshot_as_file("image.png")
-  driver.close()
-
-  results = wordleHelper.result_text.replace("Wordle Score", f"Wordle Score {i}/6")
-  results += "<br>~Nila~"
   logging.info(results)
   # logging.info(results.encode('utf-8'))
 
@@ -116,13 +104,12 @@ def main():
 
   # logging.info(payload)
 
-  x = requests.post(LOGIC_APP_URL,
-                  data=results.encode('utf-8'),
-                  headers={'Content-type': 'text/plain; charset=utf-8'})
+  # x = requests.post(LOGIC_APP_URL,
+  #                 data=results.encode('utf-8'),
+  #                 headers={'Content-type': 'text/plain; charset=utf-8'})
 
   return Response(
-    response="Wordle game complete",
+    headers={'Content-type': 'text/plain; charset=utf-8'},
+    response=results.encode('utf-8'),
     status=200
   )
-
-if __name__ == '__main__' : app.run(host="0.0.0.0", port=80)

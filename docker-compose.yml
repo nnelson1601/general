@@ -1,7 +1,7 @@
-version: "3.9.0"
+version: "3"
 services:
-  wordle:
-    image: 425005869/wordle:05102022.3
+  general:
+    image: 425005869/general:05102022.3
     build:
       context: .
       args:
