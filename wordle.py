@@ -1,3 +1,4 @@
+from random import randint
 from time import sleep
 from wordleConfig import clear_word, get_five_letter_words, load_driver, set_game, guess_word, check_win, get_letter_scores, validate_guess, write_five_letter_words
 from WordleHelper import WordleHelper
@@ -53,8 +54,14 @@ def main():
         # elif guess == "a":
         #   app.logger.info(wordleHelper.possible_words)
         #   guess = ''
-        
-      guess = suggestedGuess
+
+      randIndex = randint(0, 199)
+      if i == 0:
+        guess = wordleHelper.guess_words[randIndex]
+        app.logger.info("{: >20} {: <20}".format("First Guess:", guess))
+      else:
+        guess = suggestedGuess
+      
       guess_word(guess, keyboard)
 
       if not validate_guess(game_board, i):
