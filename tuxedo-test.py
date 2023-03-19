@@ -21,43 +21,39 @@ import requests
 
 _LOGGER = logging.getLogger(__name__)
 
+FLASK_ORIGIN="http://localhost:5000"
+
 DEFAULT_NAME = "Tuxedo"
-DOMAIN = "https://192.168.4.42"
+TUXEDO_ORIGIN = "https://192.168.4.42"
 API_REV = "API_REV01"
-API_BASE_PATH = DOMAIN + "/system_http_api/" + API_REV
+API_BASE_PATH = TUXEDO_ORIGIN + "/system_http_api/" + API_REV
 
 MAC = ""
 PRIVATE_KEY = ""
 API_KEY_ENC = PRIVATE_KEY[0:64]
 API_IV_ENC = PRIVATE_KEY[64:]
 
-CODE = ""
+CODE = "1601"
 
 def _sign_string(value, secret_key):
-    return hmac.new(bytes(secret_key, "utf-8"), bytes(value, "utf-8"), sha1).hexdigest()
+    response = requests.post(f"{FLASK_ORIGIN}/api/tuxedo/sign_string", data={"value": value, "secret_key": secret_key})
+    return response.content.decode()
 
-def _encrypt_data(data, key_string, iv_string):
-    key = bytes.fromhex(key_string)
-    iv = bytes.fromhex(iv_string)
-    encryptor = AES.new(key, AES.MODE_CBC, IV=iv)
-    cipher = encryptor.encrypt(pad(data, 16))
-    return str(base64.b64encode(cipher), "utf-8")
+def _encrypt_data(data, private_key):
+    response = requests.post(f"{FLASK_ORIGIN}/api/tuxedo/encrypt", data={"data": data, "private_key": private_key})
+    return response.content.decode()
 
-def _decrypt_data(data, key_string, iv_string):
-    raw = base64.b64decode(data)
-    key = bytes.fromhex(key_string)
-    iv = bytes.fromhex(iv_string)
-    encryptor = AES.new(key, AES.MODE_CBC, IV=iv)
-    decrypted = unpad(encryptor.decrypt(raw), AES.block_size)
-    return str(decrypted, "utf-8")
+def _decrypt_data(data, private_key):
+    response = requests.post(f"{FLASK_ORIGIN}/api/tuxedo/decrypt", data={"data": data, "private_key": private_key})
+    return response.content.decode()
 
 def api_call(api_route, params):
     uri_params = urllib.parse.urlencode(params)
-    uri_params_encrypted = _encrypt_data(
-        bytes(uri_params, "utf-8"), API_KEY_ENC, API_IV_ENC
-    )
+    uri_params_encrypted = _encrypt_data(uri_params, PRIVATE_KEY)
     full_url = API_BASE_PATH + api_route
     header = "MACID:" + MAC + ",Path:" + API_REV + api_route
+    print(header)
+    print(API_KEY_ENC)
     authtoken = _sign_string(header, API_KEY_ENC)
 
     data = {
@@ -96,7 +92,7 @@ except Exception as e:
 get_status_route = "/GetSecurityStatus"
 get_status_params = {"operation": "get"}
 get_status_response = api_call(get_status_route, get_status_params)
-print(_decrypt_data(json.loads(get_status_response.content)["Result"], API_KEY_ENC, API_IV_ENC))
+print(_decrypt_data(json.loads(get_status_response.content)["Result"], PRIVATE_KEY))
 
 # arm_with_code_route = "/AdvancedSecurity/ArmWithCode"
 # arm_with_code_params = { "arming": "STAY", "pID": "1", "ucode": CODE, "operation": "set" }
